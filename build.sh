@@ -22,7 +22,8 @@ BUILDROOT_LINUX_DIR=$DIR_PREFIX/buildroot/output/build/linux-custom
 KVM_BINDINGS_DIR="$DIR_PREFIX/kvm-bindings"
 KVM_IOCTLS_DIR="$DIR_PREFIX/kvm-ioctls"
 LINUX_LOADER_DIR="$DIR_PREFIX/linux-loader"
-RISCV_RUST_VMM_EXAMPLE_DIR="$DIR_PREFIX/riscv-rust-vmm-example"
+VMM_REFERENCE_DIR="$DIR_PREFIX/vmm-reference"
+RISCV_RUST_VMM_EXAMPLE_DIR="$DIR_PREFIX/riscv-rust-vmm-wip"
 
 LINUX_DIR="$DIR_PREFIX/linux"
 LINUX_DEFCONFIG="kvm_ioctls_riscv_defconfig"
@@ -53,19 +54,20 @@ mkdir -p "$BUILDROOT_TEST_DIR"
 # 	"$KVMTOOL_DIR" "$BUILDROOT_TARGET_DIR/test/kvmtool"
 
 cd "$KVM_BINDINGS_DIR"
-cargo build --target=riscv64gc-unknown-linux-gnu
+cargo build --target=riscv64gc-unknown-linux-gnu --config target.riscv64gc-unknown-linux-gnu.linker=\"riscv64-linux-gnu-gcc\"
 cargo test --no-run --target=riscv64gc-unknown-linux-gnu
+exit 0
 find "$(pwd)" -name "*.rs" > cscope.files
 cscope -bkq -i cscope.files -f cscope.out
 
 cd "$KVM_IOCTLS_DIR"
-cargo build --target=riscv64gc-unknown-linux-gnu
+cargo build --target=riscv64gc-unknown-linux-gnu --config target.riscv64gc-unknown-linux-gnu.linker=\"riscv64-linux-gnu-gcc\"
 cargo test --no-run --target=riscv64gc-unknown-linux-gnu
 find "$(pwd)" -name "*.rs" > cscope.files
 cscope -bkq -i cscope.files -f cscope.out
 
 cd "$LINUX_LOADER_DIR"
-cargo build --target=riscv64gc-unknown-linux-gnu
+cargo build --target=riscv64gc-unknown-linux-gnu --config target.riscv64gc-unknown-linux-gnu.linker=\"riscv64-linux-gnu-gcc\"
 cargo test --no-run --target=riscv64gc-unknown-linux-gnu
 find "$(pwd)" -name "*.rs" > cscope.files
 cscope -bkq -i cscope.files -f cscope.out
@@ -74,12 +76,17 @@ cp target/riscv64gc-unknown-linux-gnu/debug/deps/linux_loader-64f33f2362904e37 "
 
 cd "$RISCV_RUST_VMM_EXAMPLE_DIR"
 # ./bindgen.sh
+# find "$(pwd)" -name "*.rs" > cscope.files
+# cscope -bkq -i cscope.files -f cscope.out
+# cargo build --target=riscv64gc-unknown-linux-gnu
+# cargo test --no-run --target=riscv64gc-unknown-linux-gnu --config target.riscv64gc-unknown-linux-gnu.linker=\"riscv64-linux-gnu-gcc\"
+# cp target/riscv64gc-unknown-linux-gnu/debug/deps "$BUILDROOT_TEST_DIR"
+
+cd "$VMM_REFERENCE_DIR"
+cargo build --target=riscv64gc-unknown-linux-gnu --config target.riscv64gc-unknown-linux-gnu.linker=\"riscv64-linux-gnu-gcc\"
 find "$(pwd)" -name "*.rs" > cscope.files
 cscope -bkq -i cscope.files -f cscope.out
-cargo build --target=riscv64gc-unknown-linux-gnu
-cargo test --no-run --target=riscv64gc-unknown-linux-gnu
-cp target/riscv64gc-unknown-linux-gnu/debug/riscv-rust-vmm-example "$BUILDROOT_TEST_DIR"
-# cp target/riscv64gc-unknown-linux-gnu/debug/deps "$BUILDROOT_TEST_DIR"
+exit 0
 
 cd "$LINUX_DIR"
 # make $LINUX_DEFCONFIG
